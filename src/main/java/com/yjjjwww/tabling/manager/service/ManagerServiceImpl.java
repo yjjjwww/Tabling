@@ -3,6 +3,7 @@ package com.yjjjwww.tabling.manager.service;
 import com.yjjjwww.tabling.exception.CustomException;
 import com.yjjjwww.tabling.exception.ErrorCode;
 import com.yjjjwww.tabling.manager.entity.Manager;
+import com.yjjjwww.tabling.manager.model.ManagerPartnerForm;
 import com.yjjjwww.tabling.manager.model.ManagerSignInForm;
 import com.yjjjwww.tabling.manager.model.ManagerSignUpForm;
 import com.yjjjwww.tabling.manager.repository.ManagerRepository;
@@ -22,6 +23,7 @@ public class ManagerServiceImpl implements ManagerService {
 
     private static final String SIGNUP_SUCCESS = "회원가입 성공";
     private static final String SIGNIN_SUCCESS = "로그인 성공";
+    private static final String PARTNER_SUCCESS = "파트너 가입 완료";
 
     @Override
     public String signUp(ManagerSignUpForm managerSignUpForm) {
@@ -67,6 +69,30 @@ public class ManagerServiceImpl implements ManagerService {
         }
 
         return SIGNIN_SUCCESS;
+    }
+
+    @Override
+    public String getPartner(ManagerPartnerForm managerPartnerForm) {
+        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+
+        Optional<Manager> optionalManager =
+            managerRepository.findByUserId(managerPartnerForm.getUserId());
+
+        if (optionalManager.isEmpty() ||
+            !encoder.matches(managerPartnerForm.getPassword(),
+            optionalManager.get().getPassword()) ||
+            !optionalManager.get().getPhone().equals(managerPartnerForm.getPhone())
+        ) {
+            throw new CustomException(ErrorCode.MANAGER_NOT_FOUND);
+        }
+
+        Manager manager = optionalManager.get();
+
+        manager.setPartnerYn(true);
+
+        managerRepository.save(manager);
+
+        return PARTNER_SUCCESS;
     }
 
     /**
