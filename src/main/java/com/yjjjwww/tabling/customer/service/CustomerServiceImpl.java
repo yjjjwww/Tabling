@@ -1,7 +1,8 @@
 package com.yjjjwww.tabling.customer.service;
 
 import com.yjjjwww.tabling.customer.entity.Customer;
-import com.yjjjwww.tabling.customer.model.CustomerInput;
+import com.yjjjwww.tabling.customer.model.CustomerSignInForm;
+import com.yjjjwww.tabling.customer.model.CustomerSignUpForm;
 import com.yjjjwww.tabling.customer.repository.CustomerRepository;
 import com.yjjjwww.tabling.exception.CustomException;
 import com.yjjjwww.tabling.exception.ErrorCode;
@@ -10,6 +11,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCrypt;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @RequiredArgsConstructor
@@ -18,33 +20,52 @@ public class CustomerServiceImpl implements CustomerService {
 
     private final CustomerRepository customerRepository;
 
+    private static final String SIGNUP_SUCCESS = "회원가입 성공";
+    private static final String SIGNIN_SUCCESS = "로그인 성공";
+
     @Override
-    public String signUp(CustomerInput customerInput) {
+    public String signUp(CustomerSignUpForm customerSignUpForm) {
         Optional<Customer> optionalCustomer =
-            customerRepository.findByUserId(customerInput.getUserId());
+            customerRepository.findByUserId(customerSignUpForm.getUserId());
         if (optionalCustomer.isPresent()) {
             throw (new CustomException(ErrorCode.ALREADY_SIGNUP_ID));
         }
 
-        if (!isValidPassword(customerInput.getPassword())) {
+        if (!isValidPassword(customerSignUpForm.getPassword())) {
             throw new CustomException(ErrorCode.INVALID_PASSWORD);
         }
 
-        if (!isValidPhone(customerInput.getPhone())) {
+        if (!isValidPhone(customerSignUpForm.getPhone())) {
             throw new CustomException(ErrorCode.INVALID_PHONE);
         }
 
-        String encPassword = BCrypt.hashpw(customerInput.getPassword(), BCrypt.gensalt());
+        String encPassword = BCrypt.hashpw(customerSignUpForm.getPassword(), BCrypt.gensalt());
 
         Customer customer = Customer.builder()
-            .userId(customerInput.getUserId())
+            .userId(customerSignUpForm.getUserId())
             .password(encPassword)
-            .phone(customerInput.getPhone())
+            .phone(customerSignUpForm.getPhone())
             .build();
 
         customerRepository.save(customer);
 
-        return "회원가입 성공";
+        return SIGNUP_SUCCESS;
+    }
+
+    @Override
+    public String signIn(CustomerSignInForm customerSignInForm) {
+
+        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+
+        Optional<Customer> optionalCustomer =
+            customerRepository.findByUserId(customerSignInForm.getUserId());
+
+        if (optionalCustomer.isEmpty() || !encoder.matches(customerSignInForm.getPassword(),
+            optionalCustomer.get().getPassword())) {
+            throw new CustomException(ErrorCode.LOGIN_CHECK_FAIL);
+        }
+
+        return SIGNIN_SUCCESS;
     }
 
     /**
@@ -58,7 +79,7 @@ public class CustomerServiceImpl implements CustomerService {
         String regex = "^[0-9]*$";
         Pattern p = Pattern.compile(regex);
         Matcher m = p.matcher(phone);
-        if(m.matches()) {
+        if (m.matches()) {
             err = true;
         }
         return err;
@@ -72,7 +93,7 @@ public class CustomerServiceImpl implements CustomerService {
         String regex = "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[$@$!%*#?&])[A-Za-z\\d$@$!%*#?&]{8,}$";
         Pattern p = Pattern.compile(regex);
         Matcher m = p.matcher(password);
-        if(m.matches()) {
+        if (m.matches()) {
             err = true;
         }
         return err;
