@@ -1,5 +1,6 @@
 package com.yjjjwww.tabling.manager.controller;
 
+import com.yjjjwww.tabling.manager.model.ManagerPartnerForm;
 import com.yjjjwww.tabling.manager.model.ManagerSignInForm;
 import com.yjjjwww.tabling.manager.model.ManagerSignUpForm;
 import com.yjjjwww.tabling.manager.service.ManagerService;
@@ -25,5 +26,10 @@ public class ManagerController {
     @PostMapping("/signIn")
     public ResponseEntity<String> signIn(@RequestBody ManagerSignInForm managerSignInForm) {
         return ResponseEntity.ok(managerService.signIn(managerSignInForm));
+    }
+
+    @PostMapping("/partner")
+    public ResponseEntity<String> getPartner(@RequestBody ManagerPartnerForm managerPartnerForm) {
+        return ResponseEntity.ok(managerService.getPartner(managerPartnerForm));
     }
 }
