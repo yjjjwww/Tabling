@@ -86,7 +86,7 @@ public class ManagerServiceImpl implements ManagerService {
         UserVo vo = provider.getUserVo(token);
 
         Manager manager = managerRepository.findByUserId(vo.getUserId())
-            .orElseThrow(() -> new CustomException(ErrorCode.MANAGER_NOT_FOUND));
+            .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
         if (manager.isPartnerYn()) {
             throw new CustomException(ErrorCode.ALREADY_PARTNER);
@@ -105,7 +105,7 @@ public class ManagerServiceImpl implements ManagerService {
         UserVo vo = provider.getUserVo(token);
 
         Manager manager = managerRepository.findByUserId(vo.getUserId())
-            .orElseThrow(() -> new CustomException(ErrorCode.MANAGER_NOT_FOUND));
+            .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
         if (!manager.isPartnerYn()) {
             throw new CustomException(ErrorCode.NOT_PARTNER_MANAGER);
