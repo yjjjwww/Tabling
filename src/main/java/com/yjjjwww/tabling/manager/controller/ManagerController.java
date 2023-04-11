@@ -1,13 +1,14 @@
 package com.yjjjwww.tabling.manager.controller;
 
-import com.yjjjwww.tabling.manager.model.ManagerPartnerForm;
 import com.yjjjwww.tabling.manager.model.ManagerSignInForm;
 import com.yjjjwww.tabling.manager.model.ManagerSignUpForm;
 import com.yjjjwww.tabling.manager.service.ManagerService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -15,6 +16,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 @RequestMapping("/manager")
 public class ManagerController {
+
+    public static final String TOKEN_HEADER = "Authorization";
 
     private final ManagerService managerService;
 
@@ -29,7 +32,8 @@ public class ManagerController {
     }
 
     @PostMapping("/partner")
-    public ResponseEntity<String> getPartner(@RequestBody ManagerPartnerForm managerPartnerForm) {
-        return ResponseEntity.ok(managerService.getPartner(managerPartnerForm));
+    @PreAuthorize("hasRole('MANAGER')")
+    public ResponseEntity<String> getPartner(@RequestHeader(name = TOKEN_HEADER) String token) {
+        return ResponseEntity.ok(managerService.getPartner(token));
     }
 }
