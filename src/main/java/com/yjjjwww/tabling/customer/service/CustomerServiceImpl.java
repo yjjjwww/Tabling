@@ -5,13 +5,20 @@ import com.yjjjwww.tabling.config.JwtTokenProvider;
 import com.yjjjwww.tabling.customer.entity.Customer;
 import com.yjjjwww.tabling.customer.model.CustomerSignInForm;
 import com.yjjjwww.tabling.customer.model.CustomerSignUpForm;
+import com.yjjjwww.tabling.customer.model.ManagerDto;
+import com.yjjjwww.tabling.customer.model.RestaurantDto;
 import com.yjjjwww.tabling.customer.repository.CustomerRepository;
 import com.yjjjwww.tabling.exception.CustomException;
 import com.yjjjwww.tabling.exception.ErrorCode;
+import com.yjjjwww.tabling.restaurant.entity.Restaurant;
+import com.yjjjwww.tabling.restaurant.repository.RestaurantRepository;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -21,6 +28,7 @@ import org.springframework.stereotype.Service;
 public class CustomerServiceImpl implements CustomerService {
 
     private final CustomerRepository customerRepository;
+    private final RestaurantRepository restaurantRepository;
     private final JwtTokenProvider provider;
 
     private static final String SIGNUP_SUCCESS = "회원가입 성공";
@@ -70,6 +78,36 @@ public class CustomerServiceImpl implements CustomerService {
         Customer customer = optionalCustomer.get();
 
         return provider.createToken(customer.getUserId(), customer.getId(), UserType.CUSTOMER);
+    }
+
+    @Override
+    public List<RestaurantDto> getRestaurantList() {
+
+        List<Restaurant> restaurants = restaurantRepository.findAll(
+            Sort.by(Sort.Direction.DESC, "createdAt"));
+
+        ArrayList<RestaurantDto> result = new ArrayList<>();
+
+        for (Restaurant restaurant : restaurants) {
+            ManagerDto managerDto = ManagerDto.builder()
+                .id(restaurant.getManager().getId())
+                .userId(restaurant.getManager().getUserId())
+                .phone(restaurant.getManager().getPhone())
+                .build();
+
+            RestaurantDto restaurantDto = RestaurantDto.builder()
+                .id(restaurant.getId())
+                .name(restaurant.getName())
+                .address(restaurant.getAddress())
+                .phone(restaurant.getPhone())
+                .description(restaurant.getDescription())
+                .manager(managerDto)
+                .build();
+
+            result.add(restaurantDto);
+        }
+
+        return result;
     }
 
     /**

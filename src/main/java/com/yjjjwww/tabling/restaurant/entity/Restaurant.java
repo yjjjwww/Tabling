@@ -30,6 +30,7 @@ public class Restaurant extends BaseEntity {
     String name;
     String address;
     String phone;
+    String description;
 
     @ManyToOne
     @JoinColumn(name = "manager_id")

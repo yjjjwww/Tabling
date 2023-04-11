@@ -119,6 +119,7 @@ public class ManagerServiceImpl implements ManagerService {
             .name(form.getName())
             .address(form.getAddress())
             .phone(form.getPhone())
+            .description(form.getDescription())
             .manager(manager)
             .build();
 
