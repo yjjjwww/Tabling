@@ -1,20 +1,25 @@
 package com.yjjjwww.tabling.customer.service;
 
 import com.yjjjwww.tabling.common.UserType;
+import com.yjjjwww.tabling.common.UserVo;
 import com.yjjjwww.tabling.config.JwtTokenProvider;
 import com.yjjjwww.tabling.customer.entity.Customer;
 import com.yjjjwww.tabling.customer.model.CustomerSignInForm;
 import com.yjjjwww.tabling.customer.model.CustomerSignUpForm;
 import com.yjjjwww.tabling.customer.model.ManagerDto;
+import com.yjjjwww.tabling.customer.model.ReserveRestaurantForm;
 import com.yjjjwww.tabling.customer.model.RestaurantDto;
 import com.yjjjwww.tabling.customer.repository.CustomerRepository;
 import com.yjjjwww.tabling.exception.CustomException;
 import com.yjjjwww.tabling.exception.ErrorCode;
+import com.yjjjwww.tabling.reservation.entity.Reservation;
+import com.yjjjwww.tabling.reservation.repository.ReservationRepository;
 import com.yjjjwww.tabling.restaurant.entity.Restaurant;
 import com.yjjjwww.tabling.restaurant.repository.RestaurantRepository;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import lombok.RequiredArgsConstructor;
@@ -29,6 +34,7 @@ public class CustomerServiceImpl implements CustomerService {
 
     private final CustomerRepository customerRepository;
     private final RestaurantRepository restaurantRepository;
+    private final ReservationRepository reservationRepository;
     private final JwtTokenProvider provider;
 
     private static final String SIGNUP_SUCCESS = "회원가입 성공";
@@ -108,6 +114,32 @@ public class CustomerServiceImpl implements CustomerService {
         }
 
         return result;
+    }
+
+    @Override
+    public String reserveRestaurant(String token, ReserveRestaurantForm form) {
+        UserVo vo = provider.getUserVo(token);
+
+        Customer customer = customerRepository.findByUserId(vo.getUserId())
+            .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        Restaurant restaurant = restaurantRepository.findById(form.getRestaurantId())
+            .orElseThrow(() -> new CustomException(ErrorCode.RESTAURANT_NOT_FOUND));
+
+        String code = UUID.randomUUID().toString().replace("-", "");
+
+        Reservation reservation = Reservation.builder()
+            .reservationTime(form.getReservationTime())
+            .reservationCode(code)
+            .customer_visited(false)
+            .manager_accepted(false)
+            .restaurant(restaurant)
+            .customer(customer)
+            .build();
+
+        reservationRepository.save(reservation);
+
+        return code;
     }
 
     /**
