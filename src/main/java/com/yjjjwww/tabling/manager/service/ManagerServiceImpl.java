@@ -8,7 +8,10 @@ import com.yjjjwww.tabling.exception.ErrorCode;
 import com.yjjjwww.tabling.manager.entity.Manager;
 import com.yjjjwww.tabling.manager.model.ManagerSignInForm;
 import com.yjjjwww.tabling.manager.model.ManagerSignUpForm;
+import com.yjjjwww.tabling.manager.model.RestaurantRegisterForm;
 import com.yjjjwww.tabling.manager.repository.ManagerRepository;
+import com.yjjjwww.tabling.restaurant.entity.Restaurant;
+import com.yjjjwww.tabling.restaurant.repository.RestaurantRepository;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -22,10 +25,12 @@ import org.springframework.stereotype.Service;
 public class ManagerServiceImpl implements ManagerService {
 
     private final ManagerRepository managerRepository;
+    private final RestaurantRepository restaurantRepository;
     private final JwtTokenProvider provider;
 
     private static final String SIGNUP_SUCCESS = "회원가입 성공";
     private static final String PARTNER_SUCCESS = "파트너 가입 완료";
+    private static final String REGISTER_RESTAURANT_SUCCESS = "매장 등록 완료";
 
     @Override
     public String signUp(ManagerSignUpForm managerSignUpForm) {
@@ -62,22 +67,21 @@ public class ManagerServiceImpl implements ManagerService {
 
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 
-        Optional<Manager> optionalCustomer =
+        Optional<Manager> optionalManager =
             managerRepository.findByUserId(managerSignInForm.getUserId());
 
-        if (optionalCustomer.isEmpty() || !encoder.matches(managerSignInForm.getPassword(),
-            optionalCustomer.get().getPassword())) {
+        if (optionalManager.isEmpty() || !encoder.matches(managerSignInForm.getPassword(),
+            optionalManager.get().getPassword())) {
             throw new CustomException(ErrorCode.LOGIN_CHECK_FAIL);
         }
 
-        Manager manager = optionalCustomer.get();
+        Manager manager = optionalManager.get();
 
         return provider.createToken(manager.getUserId(), manager.getId(), UserType.MANAGER);
     }
 
     @Override
     public String getPartner(String token) {
-        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 
         UserVo vo = provider.getUserVo(token);
 
@@ -93,6 +97,34 @@ public class ManagerServiceImpl implements ManagerService {
         managerRepository.save(manager);
 
         return PARTNER_SUCCESS;
+    }
+
+    @Override
+    public String registerRestaurant(String token, RestaurantRegisterForm form) {
+
+        UserVo vo = provider.getUserVo(token);
+
+        Manager manager = managerRepository.findByUserId(vo.getUserId())
+            .orElseThrow(() -> new CustomException(ErrorCode.MANAGER_NOT_FOUND));
+
+        if (!manager.isPartnerYn()) {
+            throw new CustomException(ErrorCode.NOT_PARTNER_MANAGER);
+        }
+
+        if (!isValidPhone(form.getPhone())) {
+            throw new CustomException(ErrorCode.INVALID_PHONE);
+        }
+
+        Restaurant restaurant = Restaurant.builder()
+            .name(form.getName())
+            .address(form.getAddress())
+            .phone(form.getPhone())
+            .manager(manager)
+            .build();
+
+        restaurantRepository.save(restaurant);
+
+        return REGISTER_RESTAURANT_SUCCESS;
     }
 
     /**

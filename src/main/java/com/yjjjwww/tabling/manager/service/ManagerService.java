@@ -2,6 +2,7 @@ package com.yjjjwww.tabling.manager.service;
 
 import com.yjjjwww.tabling.manager.model.ManagerSignInForm;
 import com.yjjjwww.tabling.manager.model.ManagerSignUpForm;
+import com.yjjjwww.tabling.manager.model.RestaurantRegisterForm;
 
 public interface ManagerService {
 
@@ -19,4 +20,9 @@ public interface ManagerService {
      * 파트너 가입
      */
     String getPartner(String token);
+
+    /**
+     * 매장 등록
+     */
+    String registerRestaurant(String token, RestaurantRegisterForm form);
 }
