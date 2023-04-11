@@ -1,9 +1,11 @@
 package com.yjjjwww.tabling.manager.service;
 
+import com.yjjjwww.tabling.common.UserType;
+import com.yjjjwww.tabling.common.UserVo;
+import com.yjjjwww.tabling.config.JwtTokenProvider;
 import com.yjjjwww.tabling.exception.CustomException;
 import com.yjjjwww.tabling.exception.ErrorCode;
 import com.yjjjwww.tabling.manager.entity.Manager;
-import com.yjjjwww.tabling.manager.model.ManagerPartnerForm;
 import com.yjjjwww.tabling.manager.model.ManagerSignInForm;
 import com.yjjjwww.tabling.manager.model.ManagerSignUpForm;
 import com.yjjjwww.tabling.manager.repository.ManagerRepository;
@@ -20,9 +22,9 @@ import org.springframework.stereotype.Service;
 public class ManagerServiceImpl implements ManagerService {
 
     private final ManagerRepository managerRepository;
+    private final JwtTokenProvider provider;
 
     private static final String SIGNUP_SUCCESS = "회원가입 성공";
-    private static final String SIGNIN_SUCCESS = "로그인 성공";
     private static final String PARTNER_SUCCESS = "파트너 가입 완료";
 
     @Override
@@ -68,25 +70,23 @@ public class ManagerServiceImpl implements ManagerService {
             throw new CustomException(ErrorCode.LOGIN_CHECK_FAIL);
         }
 
-        return SIGNIN_SUCCESS;
+        Manager manager = optionalCustomer.get();
+
+        return provider.createToken(manager.getUserId(), manager.getId(), UserType.MANAGER);
     }
 
     @Override
-    public String getPartner(ManagerPartnerForm managerPartnerForm) {
+    public String getPartner(String token) {
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 
-        Optional<Manager> optionalManager =
-            managerRepository.findByUserId(managerPartnerForm.getUserId());
+        UserVo vo = provider.getUserVo(token);
 
-        if (optionalManager.isEmpty() ||
-            !encoder.matches(managerPartnerForm.getPassword(),
-            optionalManager.get().getPassword()) ||
-            !optionalManager.get().getPhone().equals(managerPartnerForm.getPhone())
-        ) {
-            throw new CustomException(ErrorCode.MANAGER_NOT_FOUND);
+        Manager manager = managerRepository.findByUserId(vo.getUserId())
+            .orElseThrow(() -> new CustomException(ErrorCode.MANAGER_NOT_FOUND));
+
+        if (manager.isPartnerYn()) {
+            throw new CustomException(ErrorCode.ALREADY_PARTNER);
         }
-
-        Manager manager = optionalManager.get();
 
         manager.setPartnerYn(true);
 

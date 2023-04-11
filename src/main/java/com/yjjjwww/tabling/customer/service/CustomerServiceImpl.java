@@ -1,5 +1,7 @@
 package com.yjjjwww.tabling.customer.service;
 
+import com.yjjjwww.tabling.common.UserType;
+import com.yjjjwww.tabling.config.JwtTokenProvider;
 import com.yjjjwww.tabling.customer.entity.Customer;
 import com.yjjjwww.tabling.customer.model.CustomerSignInForm;
 import com.yjjjwww.tabling.customer.model.CustomerSignUpForm;
@@ -19,9 +21,9 @@ import org.springframework.stereotype.Service;
 public class CustomerServiceImpl implements CustomerService {
 
     private final CustomerRepository customerRepository;
+    private final JwtTokenProvider provider;
 
     private static final String SIGNUP_SUCCESS = "회원가입 성공";
-    private static final String SIGNIN_SUCCESS = "로그인 성공";
 
     @Override
     public String signUp(CustomerSignUpForm customerSignUpForm) {
@@ -65,7 +67,9 @@ public class CustomerServiceImpl implements CustomerService {
             throw new CustomException(ErrorCode.LOGIN_CHECK_FAIL);
         }
 
-        return SIGNIN_SUCCESS;
+        Customer customer = optionalCustomer.get();
+
+        return provider.createToken(customer.getUserId(), customer.getId(), UserType.CUSTOMER);
     }
 
     /**

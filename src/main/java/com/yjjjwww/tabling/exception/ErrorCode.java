@@ -11,6 +11,7 @@ public enum ErrorCode {
     INVALID_PHONE(HttpStatus.BAD_REQUEST, "핸드폰 번호 형식을 확인해주세요."),
     LOGIN_CHECK_FAIL(HttpStatus.BAD_REQUEST, "아이디나 패스워드를 확인해 주세요."),
     MANAGER_NOT_FOUND(HttpStatus.BAD_REQUEST, "아이디, 패스워드, 핸드폰 번호를 확인해 주세요."),
+    ALREADY_PARTNER(HttpStatus.BAD_REQUEST, "이미 파트너 가입되어 있습니다."),
     ALREADY_SIGNUP_ID(HttpStatus.BAD_REQUEST, "중복된 아이디입니다.");
 
     private final HttpStatus httpStatus;
