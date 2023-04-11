@@ -3,6 +3,8 @@ package com.yjjjwww.tabling.manager.service;
 import com.yjjjwww.tabling.manager.model.ManagerSignInForm;
 import com.yjjjwww.tabling.manager.model.ManagerSignUpForm;
 import com.yjjjwww.tabling.manager.model.RestaurantRegisterForm;
+import com.yjjjwww.tabling.manager.model.RestaurantReservationDto;
+import java.util.List;
 
 public interface ManagerService {
 
@@ -25,4 +27,9 @@ public interface ManagerService {
      * 매장 등록
      */
     String registerRestaurant(String token, RestaurantRegisterForm form);
+
+    /**
+     * 대기 중인 예약 신청 목록 보기
+     */
+    List<RestaurantReservationDto> getReservations(String token);
 }

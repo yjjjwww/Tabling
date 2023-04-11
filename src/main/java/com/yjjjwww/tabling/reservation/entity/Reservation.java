@@ -2,6 +2,7 @@ package com.yjjjwww.tabling.reservation.entity;
 
 import com.yjjjwww.tabling.customer.entity.Customer;
 import com.yjjjwww.tabling.entity.BaseEntity;
+import com.yjjjwww.tabling.manager.entity.Manager;
 import com.yjjjwww.tabling.restaurant.entity.Restaurant;
 import java.time.LocalDateTime;
 import javax.persistence.Entity;
@@ -31,13 +32,18 @@ public class Reservation extends BaseEntity {
 
     LocalDateTime reservationTime;
     String reservationCode;
-    boolean customer_visited;
-    boolean manager_accepted;
+    boolean visited;
+    boolean accepted;
 
     @ManyToOne
     @JoinColumn(name = "restaurant_id")
     @ToString.Exclude
     private Restaurant restaurant;
+
+    @ManyToOne
+    @JoinColumn(name = "manager_id")
+    @ToString.Exclude
+    private Manager manager;
 
     @ManyToOne
     @JoinColumn(name = "customer_id")
