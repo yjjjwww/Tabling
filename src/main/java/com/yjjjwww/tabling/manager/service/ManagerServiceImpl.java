@@ -6,12 +6,18 @@ import com.yjjjwww.tabling.config.JwtTokenProvider;
 import com.yjjjwww.tabling.exception.CustomException;
 import com.yjjjwww.tabling.exception.ErrorCode;
 import com.yjjjwww.tabling.manager.entity.Manager;
+import com.yjjjwww.tabling.manager.model.ManagerRestaurantDto;
 import com.yjjjwww.tabling.manager.model.ManagerSignInForm;
 import com.yjjjwww.tabling.manager.model.ManagerSignUpForm;
 import com.yjjjwww.tabling.manager.model.RestaurantRegisterForm;
+import com.yjjjwww.tabling.manager.model.RestaurantReservationDto;
 import com.yjjjwww.tabling.manager.repository.ManagerRepository;
+import com.yjjjwww.tabling.reservation.entity.Reservation;
+import com.yjjjwww.tabling.reservation.repository.ReservationRepository;
 import com.yjjjwww.tabling.restaurant.entity.Restaurant;
 import com.yjjjwww.tabling.restaurant.repository.RestaurantRepository;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -26,6 +32,7 @@ public class ManagerServiceImpl implements ManagerService {
 
     private final ManagerRepository managerRepository;
     private final RestaurantRepository restaurantRepository;
+    private final ReservationRepository reservationRepository;
     private final JwtTokenProvider provider;
 
     private static final String SIGNUP_SUCCESS = "회원가입 성공";
@@ -126,6 +133,33 @@ public class ManagerServiceImpl implements ManagerService {
         restaurantRepository.save(restaurant);
 
         return REGISTER_RESTAURANT_SUCCESS;
+    }
+
+    @Override
+    public List<RestaurantReservationDto> getReservations(String token) {
+        UserVo vo = provider.getUserVo(token);
+
+        List<Reservation> reservations =
+            reservationRepository.findByManagerIdAndAcceptedFalse(vo.getId());
+
+        List<RestaurantReservationDto> result = new ArrayList<>();
+
+        for (Reservation reservation : reservations) {
+            ManagerRestaurantDto restaurantDto = ManagerRestaurantDto.builder()
+                .id(reservation.getRestaurant().getId())
+                .name(reservation.getRestaurant().getName())
+                .build();
+
+            RestaurantReservationDto reservationDto = RestaurantReservationDto.builder()
+                .id(reservation.getId())
+                .reservationTime(reservation.getReservationTime())
+                .restaurant(restaurantDto)
+                .build();
+
+            result.add(reservationDto);
+        }
+
+        return result;
     }
 
     /**

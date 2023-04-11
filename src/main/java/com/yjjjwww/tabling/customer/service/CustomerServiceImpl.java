@@ -12,6 +12,8 @@ import com.yjjjwww.tabling.customer.model.RestaurantDto;
 import com.yjjjwww.tabling.customer.repository.CustomerRepository;
 import com.yjjjwww.tabling.exception.CustomException;
 import com.yjjjwww.tabling.exception.ErrorCode;
+import com.yjjjwww.tabling.manager.entity.Manager;
+import com.yjjjwww.tabling.manager.repository.ManagerRepository;
 import com.yjjjwww.tabling.reservation.entity.Reservation;
 import com.yjjjwww.tabling.reservation.repository.ReservationRepository;
 import com.yjjjwww.tabling.restaurant.entity.Restaurant;
@@ -35,6 +37,7 @@ public class CustomerServiceImpl implements CustomerService {
     private final CustomerRepository customerRepository;
     private final RestaurantRepository restaurantRepository;
     private final ReservationRepository reservationRepository;
+    private final ManagerRepository managerRepository;
     private final JwtTokenProvider provider;
 
     private static final String SIGNUP_SUCCESS = "회원가입 성공";
@@ -126,14 +129,18 @@ public class CustomerServiceImpl implements CustomerService {
         Restaurant restaurant = restaurantRepository.findById(form.getRestaurantId())
             .orElseThrow(() -> new CustomException(ErrorCode.RESTAURANT_NOT_FOUND));
 
+        Manager manager = managerRepository.findById(restaurant.getManager().getId())
+            .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
         String code = UUID.randomUUID().toString().replace("-", "");
 
         Reservation reservation = Reservation.builder()
             .reservationTime(form.getReservationTime())
             .reservationCode(code)
-            .customer_visited(false)
-            .manager_accepted(false)
+            .visited(false)
+            .accepted(false)
             .restaurant(restaurant)
+            .manager(manager)
             .customer(customer)
             .build();
 

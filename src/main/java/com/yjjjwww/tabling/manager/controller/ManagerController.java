@@ -3,10 +3,13 @@ package com.yjjjwww.tabling.manager.controller;
 import com.yjjjwww.tabling.manager.model.ManagerSignInForm;
 import com.yjjjwww.tabling.manager.model.ManagerSignUpForm;
 import com.yjjjwww.tabling.manager.model.RestaurantRegisterForm;
+import com.yjjjwww.tabling.manager.model.RestaurantReservationDto;
 import com.yjjjwww.tabling.manager.service.ManagerService;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -45,5 +48,11 @@ public class ManagerController {
         @RequestBody RestaurantRegisterForm form
     ) {
         return ResponseEntity.ok(managerService.registerRestaurant(token, form));
+    }
+
+    @GetMapping("/restaurant/reservation")
+    @PreAuthorize("hasRole('MANAGER')")
+    public List<RestaurantReservationDto> getReservations(@RequestHeader(name = TOKEN_HEADER) String token) {
+        return managerService.getReservations(token);
     }
 }
