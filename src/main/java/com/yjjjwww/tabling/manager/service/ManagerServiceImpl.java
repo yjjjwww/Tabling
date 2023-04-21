@@ -16,6 +16,7 @@ import com.yjjjwww.tabling.reservation.entity.Reservation;
 import com.yjjjwww.tabling.reservation.repository.ReservationRepository;
 import com.yjjjwww.tabling.restaurant.entity.Restaurant;
 import com.yjjjwww.tabling.restaurant.repository.RestaurantRepository;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -38,6 +39,8 @@ public class ManagerServiceImpl implements ManagerService {
     private static final String SIGNUP_SUCCESS = "회원가입 성공";
     private static final String PARTNER_SUCCESS = "파트너 가입 완료";
     private static final String REGISTER_RESTAURANT_SUCCESS = "매장 등록 완료";
+    private static final String RESTAURANT_RESERVATION_ACCEPTED = "예약 승인 완료";
+    private static final String RESTAURANT_RESERVATION_CANCELED = "예약 취소 완료";
 
     @Override
     public String signUp(ManagerSignUpForm managerSignUpForm) {
@@ -160,6 +163,56 @@ public class ManagerServiceImpl implements ManagerService {
         }
 
         return result;
+    }
+
+    @Override
+    public String acceptReservation(String token, String reservationId) {
+        Reservation reservation = reservationRepository.findById(Long.parseLong(reservationId))
+            .orElseThrow(() -> new CustomException(ErrorCode.RESERVATION_NOT_FOUND));
+
+        UserVo vo = provider.getUserVo(token);
+
+        if (!vo.getUserId().equals(reservation.getManager().getUserId())) {
+            throw new CustomException(ErrorCode.MANAGER_NOT_MATCH);
+        }
+
+        if (!LocalDateTime.now().isBefore(reservation.getReservationTime())) {
+            throw new CustomException(ErrorCode.RESERVATION_TIME_PASSED);
+        }
+
+        if (reservation.isAccepted()) {
+            throw new CustomException(ErrorCode.ALREADY_ACCEPTED);
+        }
+
+        reservation.setAccepted(true);
+        reservationRepository.save(reservation);
+
+        return RESTAURANT_RESERVATION_ACCEPTED;
+    }
+
+    @Override
+    public String cancelReservation(String token, String reservationId) {
+        Reservation reservation = reservationRepository.findById(Long.parseLong(reservationId))
+            .orElseThrow(() -> new CustomException(ErrorCode.RESERVATION_NOT_FOUND));
+
+        UserVo vo = provider.getUserVo(token);
+
+        if (!vo.getUserId().equals(reservation.getManager().getUserId())) {
+            throw new CustomException(ErrorCode.MANAGER_NOT_MATCH);
+        }
+
+        if (!LocalDateTime.now().isBefore(reservation.getReservationTime())) {
+            throw new CustomException(ErrorCode.RESERVATION_TIME_PASSED);
+        }
+
+        if (!reservation.isAccepted()) {
+            throw new CustomException(ErrorCode.NOT_ACCEPTED);
+        }
+
+        reservation.setAccepted(false);
+        reservationRepository.save(reservation);
+
+        return RESTAURANT_RESERVATION_CANCELED;
     }
 
     /**

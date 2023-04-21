@@ -10,7 +10,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -54,5 +56,23 @@ public class ManagerController {
     @PreAuthorize("hasRole('MANAGER')")
     public List<RestaurantReservationDto> getReservations(@RequestHeader(name = TOKEN_HEADER) String token) {
         return managerService.getReservations(token);
+    }
+
+    @PutMapping("/restaurant/reservation/{reservationId}")
+    @PreAuthorize("hasRole('MANAGER')")
+    public ResponseEntity<String> acceptReservation(
+        @PathVariable String reservationId,
+        @RequestHeader(name = TOKEN_HEADER) String token
+    ) {
+        return ResponseEntity.ok(managerService.acceptReservation(token, reservationId));
+    }
+
+    @PutMapping("/restaurant/reservation/cancel/{reservationId}")
+    @PreAuthorize("hasRole('MANAGER')")
+    public ResponseEntity<String> cancelReservation(
+        @PathVariable String reservationId,
+        @RequestHeader(name = TOKEN_HEADER) String token
+    ) {
+        return ResponseEntity.ok(managerService.cancelReservation(token, reservationId));
     }
 }
