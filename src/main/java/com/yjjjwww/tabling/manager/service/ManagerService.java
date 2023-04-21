@@ -32,4 +32,14 @@ public interface ManagerService {
      * 대기 중인 예약 신청 목록 보기
      */
     List<RestaurantReservationDto> getReservations(String token);
+
+    /**
+     * 예약 승인하기
+     */
+    String acceptReservation(String token, String reservationId);
+
+    /**
+     * 예약 취소하기
+     */
+    String cancelReservation(String token, String reservationId);
 }
