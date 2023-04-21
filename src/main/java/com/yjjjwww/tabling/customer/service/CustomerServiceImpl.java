@@ -9,6 +9,7 @@ import com.yjjjwww.tabling.customer.model.CustomerSignUpForm;
 import com.yjjjwww.tabling.customer.model.ManagerDto;
 import com.yjjjwww.tabling.customer.model.ReserveRestaurantForm;
 import com.yjjjwww.tabling.customer.model.RestaurantDto;
+import com.yjjjwww.tabling.customer.model.VisitRestaurantForm;
 import com.yjjjwww.tabling.customer.repository.CustomerRepository;
 import com.yjjjwww.tabling.exception.CustomException;
 import com.yjjjwww.tabling.exception.ErrorCode;
@@ -18,8 +19,10 @@ import com.yjjjwww.tabling.reservation.entity.Reservation;
 import com.yjjjwww.tabling.reservation.repository.ReservationRepository;
 import com.yjjjwww.tabling.restaurant.entity.Restaurant;
 import com.yjjjwww.tabling.restaurant.repository.RestaurantRepository;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.regex.Matcher;
@@ -41,6 +44,7 @@ public class CustomerServiceImpl implements CustomerService {
     private final JwtTokenProvider provider;
 
     private static final String SIGNUP_SUCCESS = "회원가입 성공";
+    private static final String VISIT_SUCCESS = "매장 방문 확인";
 
     @Override
     public String signUp(CustomerSignUpForm customerSignUpForm) {
@@ -147,6 +151,44 @@ public class CustomerServiceImpl implements CustomerService {
         reservationRepository.save(reservation);
 
         return code;
+    }
+
+    @Override
+    public String visitRestaurant(String token, VisitRestaurantForm form) {
+        String reservationCode = form.getReservationCode();
+        Long restaurantId = form.getRestaurantId();
+
+        Reservation reservation =
+            reservationRepository.findByReservationCode(reservationCode)
+                .orElseThrow(() -> new CustomException(ErrorCode.RESERVATION_NOT_FOUND));
+
+        UserVo vo = provider.getUserVo(token);
+
+        if (!Objects.equals(reservation.getCustomer().getId(), vo.getId())) {
+            throw new CustomException(ErrorCode.CUSTOMER_NOT_MATCH);
+        }
+
+        if (!Objects.equals(restaurantId, reservation.getRestaurant().getId())) {
+            throw new CustomException(ErrorCode.RESTAURANT_NOT_MATCH);
+        }
+
+        if (!reservation.isAccepted()) {
+            throw new CustomException(ErrorCode.NOT_ACCEPTED);
+        }
+
+        LocalDateTime curTime = LocalDateTime.now();
+        if (!curTime.isBefore(reservation.getReservationTime().minusMinutes(10))) {
+            throw new CustomException(ErrorCode.RESERVATION_TIME_LATE);
+        }
+
+        if (reservation.isVisited()) {
+            throw new CustomException(ErrorCode.ALREADY_VISITED);
+        }
+
+        reservation.setVisited(true);
+        reservationRepository.save(reservation);
+
+        return VISIT_SUCCESS;
     }
 
     /**
