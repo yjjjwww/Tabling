@@ -4,6 +4,7 @@ import com.yjjjwww.tabling.customer.model.CustomerSignInForm;
 import com.yjjjwww.tabling.customer.model.CustomerSignUpForm;
 import com.yjjjwww.tabling.customer.model.ReserveRestaurantForm;
 import com.yjjjwww.tabling.customer.model.RestaurantDto;
+import com.yjjjwww.tabling.customer.model.VisitRestaurantForm;
 import com.yjjjwww.tabling.customer.service.CustomerService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -11,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -48,5 +50,14 @@ public class CustomerController {
         @RequestBody ReserveRestaurantForm form
     ) {
         return ResponseEntity.ok(customerService.reserveRestaurant(token, form));
+    }
+
+    @PutMapping("/restaurant/visit")
+    @PreAuthorize("hasRole('CUSTOMER')")
+    public ResponseEntity<String> visitRestaurant(
+        @RequestHeader(name = TOKEN_HEADER) String token,
+        @RequestBody VisitRestaurantForm form
+    ) {
+        return ResponseEntity.ok(customerService.visitRestaurant(token, form));
     }
 }

@@ -4,6 +4,7 @@ import com.yjjjwww.tabling.customer.model.CustomerSignInForm;
 import com.yjjjwww.tabling.customer.model.CustomerSignUpForm;
 import com.yjjjwww.tabling.customer.model.ReserveRestaurantForm;
 import com.yjjjwww.tabling.customer.model.RestaurantDto;
+import com.yjjjwww.tabling.customer.model.VisitRestaurantForm;
 import java.util.List;
 
 public interface CustomerService {
@@ -28,4 +29,9 @@ public interface CustomerService {
      * 매장 예약 코드 리턴
      */
     String reserveRestaurant(String token, ReserveRestaurantForm form);
+
+    /**
+     * 매장 방문하기
+     */
+    String visitRestaurant(String token, VisitRestaurantForm form);
 }
