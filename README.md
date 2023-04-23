@@ -1,4 +1,5 @@
 # 매장 테이블 예약 서비스
+___
 
 Use : Spring, Jpa, MariaDB
 
@@ -27,6 +28,8 @@ ___
 - 매장별 리뷰 최신순으로 조회
 ___
 ## 개발 서비스 흐름도
-![스크린샷 2023-04-24 오전 5.04.34.png](..%2F..%2FDesktop%2F%EC%8A%A4%ED%81%AC%EB%A6%B0%EC%83%B7%202023-04-24%20%EC%98%A4%EC%A0%84%205.04.34.png)
+<img width="1113" alt="스크린샷 2023-04-24 오전 5 04 34" src="https://user-images.githubusercontent.com/100079037/233864250-790d5f43-95b6-4388-ba89-5a48b4066042.png">
+
 ___
 ## 데이터베이스 스키마
+![tabling](https://user-images.githubusercontent.com/100079037/233864317-4cb64156-86f0-4660-b9eb-bd0e4688acd6.png)
