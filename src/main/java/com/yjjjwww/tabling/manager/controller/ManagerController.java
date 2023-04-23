@@ -58,10 +58,13 @@ public class ManagerController {
     }
 
     @ApiOperation(value = "Manager 매장 예약 리스트 조회")
-    @GetMapping("/restaurant/reservation")
+    @GetMapping("/restaurant/reservation/{restaurantId}")
     @PreAuthorize("hasRole('MANAGER')")
-    public List<RestaurantReservationDto> getReservations(@RequestHeader(name = TOKEN_HEADER) String token) {
-        return managerService.getReservations(token);
+    public List<RestaurantReservationDto> getReservations(
+        @PathVariable Long restaurantId,
+        @RequestHeader(name = TOKEN_HEADER) String token
+    ) {
+        return managerService.getReservations(token, restaurantId);
     }
 
     @ApiOperation(value = "매장 예약 승인")

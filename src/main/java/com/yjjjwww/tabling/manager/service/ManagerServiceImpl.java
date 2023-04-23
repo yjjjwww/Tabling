@@ -139,11 +139,11 @@ public class ManagerServiceImpl implements ManagerService {
     }
 
     @Override
-    public List<RestaurantReservationDto> getReservations(String token) {
+    public List<RestaurantReservationDto> getReservations(String token, Long restaurantId) {
         UserVo vo = provider.getUserVo(token);
 
         List<Reservation> reservations =
-            reservationRepository.findByManagerIdAndAcceptedFalse(vo.getId());
+            reservationRepository.findByManagerIdAndRestaurantIdAndAcceptedFalse(vo.getId(), restaurantId);
 
         List<RestaurantReservationDto> result = new ArrayList<>();
 
@@ -156,6 +156,8 @@ public class ManagerServiceImpl implements ManagerService {
             RestaurantReservationDto reservationDto = RestaurantReservationDto.builder()
                 .id(reservation.getId())
                 .reservationTime(reservation.getReservationTime())
+                .accepted(reservation.isAccepted())
+                .visited(reservation.isVisited())
                 .restaurant(restaurantDto)
                 .build();
 
