@@ -16,6 +16,8 @@ public class RestaurantReservationDto {
 
     Long id;
     LocalDateTime reservationTime;
+    boolean visited;
+    boolean accepted;
 
     ManagerRestaurantDto restaurant;
 }
