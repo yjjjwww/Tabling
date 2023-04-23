@@ -8,6 +8,7 @@ import com.yjjjwww.tabling.customer.model.ReserveRestaurantForm;
 import com.yjjjwww.tabling.customer.model.RestaurantDto;
 import com.yjjjwww.tabling.customer.model.VisitRestaurantForm;
 import com.yjjjwww.tabling.customer.service.CustomerService;
+import io.swagger.annotations.ApiOperation;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -31,22 +32,26 @@ public class CustomerController {
 
     private final CustomerService customerService;
 
+    @ApiOperation(value = "Customer 회원 가입")
     @PostMapping("/signUp")
     public ResponseEntity<String> signUp(@RequestBody CustomerSignUpForm customerSignUpForm) {
         return ResponseEntity.ok(customerService.signUp(customerSignUpForm));
     }
 
+    @ApiOperation(value = "Customer 로그인")
     @PostMapping("/signIn")
     public ResponseEntity<String> signIn(@RequestBody CustomerSignInForm customerSignInForm) {
         return ResponseEntity.ok(customerService.signIn(customerSignInForm));
     }
 
+    @ApiOperation(value = "매장 목록 조회")
     @GetMapping("/restaurant")
     @PreAuthorize("hasRole('CUSTOMER')")
     public List<RestaurantDto> getRestaurantList() {
         return customerService.getRestaurantList();
     }
 
+    @ApiOperation(value = "Customer 매장 예약하기")
     @PostMapping("/restaurant/reservation")
     @PreAuthorize("hasRole('CUSTOMER')")
     public ResponseEntity<String> reserveRestaurant(
@@ -56,6 +61,7 @@ public class CustomerController {
         return ResponseEntity.ok(customerService.reserveRestaurant(token, form));
     }
 
+    @ApiOperation(value = "Customer 매장 방문 확인")
     @PutMapping("/restaurant/visit")
     @PreAuthorize("hasRole('CUSTOMER')")
     public ResponseEntity<String> visitRestaurant(
@@ -65,6 +71,7 @@ public class CustomerController {
         return ResponseEntity.ok(customerService.visitRestaurant(token, form));
     }
 
+    @ApiOperation(value = "Customer 리뷰 등록")
     @PostMapping("/restaurant/review")
     @PreAuthorize("hasRole('CUSTOMER')")
     public ResponseEntity<String> registerReview(
@@ -74,6 +81,7 @@ public class CustomerController {
         return ResponseEntity.ok(customerService.registerReview(token, form));
     }
 
+    @ApiOperation(value = "Customer 리뷰 수정")
     @PutMapping("/restaurant/review")
     @PreAuthorize("hasRole('CUSTOMER')")
     public ResponseEntity<String> editReview(
@@ -83,6 +91,7 @@ public class CustomerController {
         return ResponseEntity.ok(customerService.editReview(token, form));
     }
 
+    @ApiOperation(value = "Customer 리뷰 삭제")
     @DeleteMapping("/restaurant/review/{reviewId}")
     @PreAuthorize("hasRole('CUSTOMER')")
     public ResponseEntity<String> deleteReview(
