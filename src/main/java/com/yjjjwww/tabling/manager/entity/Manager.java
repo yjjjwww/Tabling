@@ -29,5 +29,6 @@ public class Manager extends BaseEntity {
 
     String password;
     String phone;
+    // 파트너 회원 가입 유무
     boolean partnerYn;
 }

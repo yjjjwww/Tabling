@@ -30,7 +30,9 @@ public class Review extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
 
+    // 리뷰 내용
     String contents;
+    // 리뷰 평점(1~10)
     Integer rating;
 
     @OneToOne

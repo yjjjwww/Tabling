@@ -31,8 +31,11 @@ public class Reservation extends BaseEntity {
     Long id;
 
     LocalDateTime reservationTime;
+    // 매장 방문시 확인하기 위한 예약코드
     String reservationCode;
+    // customer 매장 방문 확인 유무
     boolean visited;
+    // manager 예약 승인 유무
     boolean accepted;
 
     @ManyToOne
