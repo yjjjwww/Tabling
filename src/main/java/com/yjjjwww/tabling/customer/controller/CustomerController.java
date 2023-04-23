@@ -2,6 +2,7 @@ package com.yjjjwww.tabling.customer.controller;
 
 import com.yjjjwww.tabling.customer.model.CustomerSignInForm;
 import com.yjjjwww.tabling.customer.model.CustomerSignUpForm;
+import com.yjjjwww.tabling.customer.model.RegisterReviewForm;
 import com.yjjjwww.tabling.customer.model.ReserveRestaurantForm;
 import com.yjjjwww.tabling.customer.model.RestaurantDto;
 import com.yjjjwww.tabling.customer.model.VisitRestaurantForm;
@@ -59,5 +60,14 @@ public class CustomerController {
         @RequestBody VisitRestaurantForm form
     ) {
         return ResponseEntity.ok(customerService.visitRestaurant(token, form));
+    }
+
+    @PostMapping("/restaurant/review")
+    @PreAuthorize("hasRole('CUSTOMER')")
+    public ResponseEntity<String> registerReview(
+        @RequestHeader(name = TOKEN_HEADER) String token,
+        @RequestBody RegisterReviewForm form
+    ) {
+        return ResponseEntity.ok(customerService.registerReview(token, form));
     }
 }

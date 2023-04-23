@@ -21,6 +21,10 @@ public enum ErrorCode {
     ALREADY_PARTNER(HttpStatus.BAD_REQUEST, "이미 파트너 가입되어 있습니다."),
     ALREADY_ACCEPTED(HttpStatus.BAD_REQUEST, "이미 승인된 예약입니다."),
     NOT_ACCEPTED(HttpStatus.BAD_REQUEST, "승인되지 않은 예약입니다."),
+    NOT_VISITED_RESERVATION(HttpStatus.BAD_REQUEST, "방문 확인이 되지 않았습니다."),
+    ALREADY_REGISTERED_REVIEW(HttpStatus.BAD_REQUEST, "이미 작성된 리뷰입니다."),
+    INVALID_RATING(HttpStatus.BAD_REQUEST, "리뷰 평점은 1부터 10까지 숫자만 가능합니다."),
+    INVALID_CONTENTS(HttpStatus.BAD_REQUEST, "리뷰 내용을 입력해주세요."),
     RESERVATION_TIME_PASSED(HttpStatus.BAD_REQUEST, "예약 신청 시간이 지났습니다."),
     NOT_PARTNER_MANAGER(HttpStatus.BAD_REQUEST, "파트너 가입 해주세요."),
     ALREADY_SIGNUP_ID(HttpStatus.BAD_REQUEST, "중복된 아이디입니다.");
