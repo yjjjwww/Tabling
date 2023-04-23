@@ -143,7 +143,8 @@ public class ManagerServiceImpl implements ManagerService {
         UserVo vo = provider.getUserVo(token);
 
         List<Reservation> reservations =
-            reservationRepository.findByManagerIdAndRestaurantIdAndAcceptedFalse(vo.getId(), restaurantId);
+            reservationRepository.findByManagerIdAndRestaurantIdAndAcceptedFalse(vo.getId(),
+                restaurantId);
 
         List<RestaurantReservationDto> result = new ArrayList<>();
 

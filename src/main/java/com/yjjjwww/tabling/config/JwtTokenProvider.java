@@ -24,7 +24,7 @@ public class JwtTokenProvider {
     @Value("${jwt.secret.key}")
     private String secretKey;
 
-    private static final long tokenExpire = 1000*60*60;
+    private static final long tokenExpire = 1000 * 60 * 60;
 
     private static final String USERTYPE = "userType";
     public static final String TOKEN_PREFIX = "Bearer ";
@@ -54,7 +54,8 @@ public class JwtTokenProvider {
 
         UserDetails userDetails = new User(username, "", authorities);
 
-        return new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
+        return new UsernamePasswordAuthenticationToken(userDetails, "",
+            userDetails.getAuthorities());
     }
 
     public boolean validateToken(String token) {
@@ -67,7 +68,8 @@ public class JwtTokenProvider {
     }
 
     public UserVo getUserVo(String token) {
-        Claims claims = Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token.substring(TOKEN_PREFIX.length())).getBody();
+        Claims claims = Jwts.parser().setSigningKey(secretKey)
+            .parseClaimsJws(token.substring(TOKEN_PREFIX.length())).getBody();
         return new UserVo(Long.parseLong(Objects.requireNonNull(claims.getId())),
             claims.getSubject());
     }
