@@ -2,6 +2,7 @@ package com.yjjjwww.tabling.customer.service;
 
 import com.yjjjwww.tabling.customer.model.CustomerSignInForm;
 import com.yjjjwww.tabling.customer.model.CustomerSignUpForm;
+import com.yjjjwww.tabling.customer.model.EditReviewForm;
 import com.yjjjwww.tabling.customer.model.RegisterReviewForm;
 import com.yjjjwww.tabling.customer.model.ReserveRestaurantForm;
 import com.yjjjwww.tabling.customer.model.RestaurantDto;
@@ -40,4 +41,14 @@ public interface CustomerService {
      * 리뷰 작성하기
      */
     String registerReview(String token, RegisterReviewForm form);
+
+    /**
+     * 리뷰 수정하기
+     */
+    String editReview(String token, EditReviewForm form);
+
+    /**
+     * 리뷰 삭제하기
+     */
+    String deleteReview(String token, Long reviewId);
 }
