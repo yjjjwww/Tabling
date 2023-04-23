@@ -6,6 +6,7 @@ import com.yjjjwww.tabling.config.JwtTokenProvider;
 import com.yjjjwww.tabling.customer.entity.Customer;
 import com.yjjjwww.tabling.customer.model.CustomerSignInForm;
 import com.yjjjwww.tabling.customer.model.CustomerSignUpForm;
+import com.yjjjwww.tabling.customer.model.EditReviewForm;
 import com.yjjjwww.tabling.customer.model.ManagerDto;
 import com.yjjjwww.tabling.customer.model.RegisterReviewForm;
 import com.yjjjwww.tabling.customer.model.ReserveRestaurantForm;
@@ -50,6 +51,8 @@ public class CustomerServiceImpl implements CustomerService {
     private static final String SIGNUP_SUCCESS = "회원가입 성공";
     private static final String VISIT_SUCCESS = "매장 방문 확인";
     private static final String REGISTER_REVIEW_SUCCESS = "리뷰 작성 성공";
+    private static final String EDIT_REVIEW_SUCCESS = "리뷰 수정 성공";
+    private static final String DELETE_REVIEW_SUCCESS = "리뷰 삭제 성공";
 
     @Override
     public String signUp(CustomerSignUpForm customerSignUpForm) {
@@ -237,6 +240,48 @@ public class CustomerServiceImpl implements CustomerService {
         reviewRepository.save(review);
 
         return REGISTER_REVIEW_SUCCESS;
+    }
+
+    @Override
+    public String editReview(String token, EditReviewForm form) {
+        UserVo vo = provider.getUserVo(token);
+
+        Review review = reviewRepository.findById(form.getReviewId())
+            .orElseThrow(() -> new CustomException(ErrorCode.REVIEW_NOT_FOUND));
+
+        if (!Objects.equals(review.getCustomer().getId(), vo.getId())) {
+            throw new CustomException(ErrorCode.CUSTOMER_NOT_MATCH);
+        }
+
+        if (form.getRating() < 0 || form.getRating() > 10) {
+            throw new CustomException(ErrorCode.INVALID_RATING);
+        }
+
+        if ("".equals(form.getContents())) {
+            throw new CustomException(ErrorCode.INVALID_CONTENTS);
+        }
+
+        review.setContents(form.getContents());
+        review.setRating(form.getRating());
+        reviewRepository.save(review);
+
+        return EDIT_REVIEW_SUCCESS;
+    }
+
+    @Override
+    public String deleteReview(String token, Long reviewId) {
+        UserVo vo = provider.getUserVo(token);
+
+        Review review = reviewRepository.findById(reviewId)
+            .orElseThrow(() -> new CustomException(ErrorCode.REVIEW_NOT_FOUND));
+
+        if (!Objects.equals(review.getCustomer().getId(), vo.getId())) {
+            throw new CustomException(ErrorCode.CUSTOMER_NOT_MATCH);
+        }
+
+        reviewRepository.delete(review);
+
+        return DELETE_REVIEW_SUCCESS;
     }
 
     /**

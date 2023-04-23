@@ -25,6 +25,7 @@ public enum ErrorCode {
     ALREADY_REGISTERED_REVIEW(HttpStatus.BAD_REQUEST, "이미 작성된 리뷰입니다."),
     INVALID_RATING(HttpStatus.BAD_REQUEST, "리뷰 평점은 1부터 10까지 숫자만 가능합니다."),
     INVALID_CONTENTS(HttpStatus.BAD_REQUEST, "리뷰 내용을 입력해주세요."),
+    REVIEW_NOT_FOUND(HttpStatus.BAD_REQUEST, "해당 리뷰를 찾을 수 없습니다."),
     RESERVATION_TIME_PASSED(HttpStatus.BAD_REQUEST, "예약 신청 시간이 지났습니다."),
     NOT_PARTNER_MANAGER(HttpStatus.BAD_REQUEST, "파트너 가입 해주세요."),
     ALREADY_SIGNUP_ID(HttpStatus.BAD_REQUEST, "중복된 아이디입니다.");
