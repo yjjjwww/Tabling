@@ -7,6 +7,7 @@ import com.yjjjwww.tabling.customer.entity.Customer;
 import com.yjjjwww.tabling.customer.model.CustomerSignInForm;
 import com.yjjjwww.tabling.customer.model.CustomerSignUpForm;
 import com.yjjjwww.tabling.customer.model.ManagerDto;
+import com.yjjjwww.tabling.customer.model.RegisterReviewForm;
 import com.yjjjwww.tabling.customer.model.ReserveRestaurantForm;
 import com.yjjjwww.tabling.customer.model.RestaurantDto;
 import com.yjjjwww.tabling.customer.model.VisitRestaurantForm;
@@ -19,6 +20,8 @@ import com.yjjjwww.tabling.reservation.entity.Reservation;
 import com.yjjjwww.tabling.reservation.repository.ReservationRepository;
 import com.yjjjwww.tabling.restaurant.entity.Restaurant;
 import com.yjjjwww.tabling.restaurant.repository.RestaurantRepository;
+import com.yjjjwww.tabling.review.entity.Review;
+import com.yjjjwww.tabling.review.repository.ReviewRepository;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -41,10 +44,12 @@ public class CustomerServiceImpl implements CustomerService {
     private final RestaurantRepository restaurantRepository;
     private final ReservationRepository reservationRepository;
     private final ManagerRepository managerRepository;
+    private final ReviewRepository reviewRepository;
     private final JwtTokenProvider provider;
 
     private static final String SIGNUP_SUCCESS = "회원가입 성공";
     private static final String VISIT_SUCCESS = "매장 방문 확인";
+    private static final String REGISTER_REVIEW_SUCCESS = "리뷰 작성 성공";
 
     @Override
     public String signUp(CustomerSignUpForm customerSignUpForm) {
@@ -189,6 +194,49 @@ public class CustomerServiceImpl implements CustomerService {
         reservationRepository.save(reservation);
 
         return VISIT_SUCCESS;
+    }
+
+    @Override
+    public String registerReview(String token, RegisterReviewForm form) {
+        UserVo vo = provider.getUserVo(token);
+
+        Long reservationId = form.getReservationId();
+        Reservation reservation =
+            reservationRepository.findById(reservationId)
+                .orElseThrow(() -> new CustomException(ErrorCode.RESERVATION_NOT_FOUND));
+
+        if (!Objects.equals(reservation.getCustomer().getId(), vo.getId())) {
+            throw new CustomException(ErrorCode.CUSTOMER_NOT_MATCH);
+        }
+
+        if (!reservation.isVisited()) {
+            throw new CustomException(ErrorCode.NOT_VISITED_RESERVATION);
+        }
+
+        Optional<Review> optionalReview = reviewRepository.findByReservationId(reservationId);
+        if (optionalReview.isPresent()) {
+            throw new CustomException(ErrorCode.ALREADY_REGISTERED_REVIEW);
+        }
+
+        if (form.getRating() < 0 || form.getRating() > 10) {
+            throw new CustomException(ErrorCode.INVALID_RATING);
+        }
+
+        if ("".equals(form.getContents())) {
+            throw new CustomException(ErrorCode.INVALID_CONTENTS);
+        }
+
+        Review review = Review.builder()
+            .contents(form.getContents())
+            .rating(form.getRating())
+            .reservation(reservation)
+            .restaurant(reservation.getRestaurant())
+            .customer(reservation.getCustomer())
+            .build();
+
+        reviewRepository.save(review);
+
+        return REGISTER_REVIEW_SUCCESS;
     }
 
     /**
