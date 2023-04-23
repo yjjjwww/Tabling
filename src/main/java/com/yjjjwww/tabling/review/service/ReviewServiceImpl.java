@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
 
 @RequiredArgsConstructor
 @Service
-public class ReviewServiceImpl implements ReviewService{
+public class ReviewServiceImpl implements ReviewService {
 
     private final ReviewRepository reviewRepository;
 
@@ -36,7 +36,8 @@ public class ReviewServiceImpl implements ReviewService{
     @Override
     public List<ReviewDto> getReviewListByRestaurantId(Long restaurantId) {
         List<ReviewDto> result = new ArrayList<>();
-        List<Review> reviews = reviewRepository.findAllByRestaurantIdOrderByCreatedAtDesc(restaurantId);
+        List<Review> reviews = reviewRepository.findAllByRestaurantIdOrderByCreatedAtDesc(
+            restaurantId);
         for (Review review : reviews) {
             ReviewDto reviewDto = ReviewDto.builder()
                 .id(review.getId())
